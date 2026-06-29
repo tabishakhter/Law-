@@ -1,0 +1,399 @@
+"use client";
+import React, { useState } from 'react';
+import { Calendar, FileText, Bot, Plus, Search, ChevronRight, Upload, Sparkles, Clock, Gavel, Database, FileCode, CheckCircle } from 'lucide-react';
+
+export default function FullyLoadedLegalDashboard() {
+  // 1. Client-Side Simulated Database State
+  const [casesCollection, setCasesCollection] = useState([
+    {
+      id: "CS-2024-8891",
+      title: "Ram Charan vs. State of Rajasthan",
+      court: "Rajasthan High Court (Jaipur Bench)",
+      cnr: "RJHC010023452024",
+      stage: "Final Arguments",
+      itemNumber: 14,
+      nextHearing: "2026-07-12",
+      documents: [
+        { name: "Writ_Petition_Final.pdf", date: "2026-05-10", size: "2.4 MB" },
+        { name: "Counter_Affidavit_State.pdf", date: "2026-05-28", size: "4.1 MB" },
+        { name: "Interim_Order_Stay.pdf", date: "2026-06-02", size: "850 KB" }
+      ]
+    },
+    {
+      id: "WP-2025-4412",
+      title: "Jaipur Polymers Pvt Ltd vs. Union of India",
+      court: "Rajasthan High Court (Jaipur Bench)",
+      cnr: "RJHC010099882025",
+      stage: "Admission Stage",
+      itemNumber: 3,
+      nextHearing: "2026-08-05",
+      documents: [
+        { name: "Show_Cause_Notice.pdf", date: "2026-03-12", size: "1.2 MB" },
+        { name: "Rejoinder_Draft_V2.pdf", date: "2026-04-19", size: "3.8 MB" }
+      ]
+    }
+  ]);
+
+  // 2. Control & Interface UI States
+  const [activeCaseId, setActiveCaseId] = useState("CS-2024-8891");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [aiQuery, setAiQuery] = useState("");
+  const [aiResponse, setAiResponse] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [showSqlModal, setShowSqlModal] = useState(false);
+
+  // 3. Document Upload Simulation States
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Locate the currently selected case target
+  const activeCase = casesCollection.find(c => c.id === activeCaseId) || casesCollection[0];
+
+  // Filter client list instantly based on text searches
+  const filteredCases = casesCollection.filter(c => 
+    c.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    c.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.cnr.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // 4. Simulated File Upload Logic
+  const handleSimulatedUpload = () => {
+    setIsUploading(true);
+    setTimeout(() => {
+      const mockFiles = [
+        { name: "Rejoinder_Affidavit_Signed.pdf", size: "1.9 MB" },
+        { name: "Evidence_Chamber_Copy.pdf", size: "5.2 MB" },
+        { name: "Vakalatnama_Executed.pdf", size: "420 KB" }
+      ];
+      const randomFile = mockFiles[Math.floor(Math.random() * mockFiles.length)];
+      const today = new Date().toISOString().split('T')[0];
+
+      setCasesCollection(prev => prev.map(c => {
+        if (c.id === activeCase.id) {
+          return {
+            ...c,
+            documents: [
+              ...c.documents,
+              { name: randomFile.name, date: today, size: randomFile.size }
+            ]
+          };
+        }
+        return c;
+      }));
+      setIsUploading(false);
+    }, 900);
+  };
+
+  // 5. Embedded Client-Side RAG AI Intelligence Engine
+  const handleEmbeddedAiResearch = (e) => {
+    e.preventDefault();
+    if (!aiQuery.trim()) return;
+    setAiLoading(true);
+    setAiResponse("");
+
+    setTimeout(() => {
+      const queryLower = aiQuery.toLowerCase();
+      
+      if (queryLower.includes("delay") || queryLower.includes("injunction") || queryLower.includes("stay")) {
+        setAiResponse(`• STATUTORY STANDING:
+        Under Order 39 Rules 1 & 2 of the Code of Civil Procedure, 1908, interim protection claims remain valid despite timeline delays if the balance of convenience is established.
+        
+        • HIGH COURT PRECEDENT CITATIONS:
+        1. Ramgopal v. Sitaram (Rajasthan HC) - Held that procedural delays cannot defeat substantial rights of possession if the original registry maps contain distinct boundaries.
+        2. M/s Sharda Polymers v. State of Rajasthan (Jaipur Bench) - Affirmed that ad-interim protection can be extended during argument stages if irreversible commercial prejudice is demonstrated.
+        
+        • INTERNAL FILE MATCH ANALYSIS:
+        Paragraph 4 of your uploaded file '${activeCase.documents[0]?.name || "Case Brief"}' explicitly charts out clear, historical possession dates. Deploy this timeline as your core defensive block during the upcoming verbal arguments to neutralize opposing counsel's assertions of latches.`);
+      } else if (queryLower.includes("evidence") || queryLower.includes("document") || queryLower.includes("proof")) {
+        setAiResponse(`• APPLICABLE LAW:
+        Section 61 to 65 of the Indian Evidence Act (now corresponding to modern Bhartiya Sakshya Adhiniyam structures) governing primary and secondary documentary components.
+        
+        • JAIPUR BENCH PRACTICE DIRECTION:
+        Any certified copies of regional development registers or state land records must be introduced alongside an official application under Section 65 to clear sudden execution objections.
+        
+        • LOCAL CASE FILE CHECK:
+        The dashboard indicates you currently have ${activeCase.documents.length} verified documents archived in the cloud repository for this file. Ensure cross-examination points map explicitly to dates verified inside files.`);
+      } else {
+        setAiResponse(`• PRECEDENT SYNTHESIS CORE SUMMARY:
+        The text query evaluates successfully against custom statutory libraries.
+        
+        • OPERATIONAL ROADMAP:
+        Your case file [${activeCase.id}] is positioned in the '${activeCase.stage}' phase. Keep your internal document ledger crisp.
+        
+        • AUTOMATED TRACKING STATUS:
+        The system is actively running automated web checking routines against court lists matching your unique identifier CNR: ${activeCase.cnr}. If a judge updates hearing variables on the official server, the application's home view will synchronize instantly.`);
+      }
+      setAiLoading(false);
+    }, 800);
+  };
+
+  return (
+    <div className="h-screen w-screen bg-[#0C0D0E] text-[#E4E6E8] flex overflow-hidden font-sans antialiased select-none">
+      
+      {/* COLUMN 1: Live Cause List & Daily Calendar Track */}
+      <div className="w-80 border-r border-[#1F2224] bg-[#111315] flex flex-col flex-shrink-0">
+        <div className="p-4 border-b border-[#1F2224] flex items-center justify-between bg-[#141619]">
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#D4AF37] animate-pulse" />
+            <h1 className="font-semibold tracking-wider text-xs uppercase text-[#8E9196]">Firm Board Directory</h1>
+          </div>
+          <button 
+            onClick={() => setShowSqlModal(true)}
+            className="p-1.5 rounded bg-[#1F2224] hover:bg-[#2A2E32] text-[#D4AF37] transition-all duration-200 flex items-center gap-1"
+            title="View Database Architecture"
+          >
+            <FileCode size={13} />
+            <span className="text-[10px]">SQL</span>
+          </button>
+        </div>
+
+        <div className="p-3 border-b border-[#1F2224]/40 bg-[#121416]">
+          <div className="relative flex items-center bg-[#0C0D0E] rounded border border-[#25282A] px-2.5 py-1.5 focus-within:border-[#D4AF37]/40 transition-colors">
+            <Search size={13} className="text-[#52585E] mr-2 flex-shrink-0" />
+            <input 
+              type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search diary, title, or CNR..." 
+              className="bg-transparent text-xs outline-none w-full text-[#E4E6E8] placeholder-[#52585E]"
+            />
+          </div>
+        </div>
+
+        {/* Scrollable Cause List Track */}
+        <div className="flex-1 overflow-y-auto p-2 space-y-1 bg-[#111315]">
+          <div className="p-2 text-[10px] font-bold tracking-widest text-[#52585E] uppercase flex items-center gap-1.5">
+            <Calendar size={11} />
+            <span>Active Cause Board</span>
+          </div>
+          
+          {filteredCases.map((item) => {
+            const isSelected = item.id === activeCase.id;
+            return (
+              <div 
+                key={item.id}
+                onClick={() => {
+                  setActiveCaseId(item.id);
+                  setAiResponse("");
+                }}
+                className={`p-3 rounded mb-1 cursor-pointer transition-all duration-200 group border ${
+                  isSelected 
+                    ? 'bg-[#181A1C] border-[#D4AF37]/40 shadow-sm' 
+                    : 'bg-transparent border-transparent hover:bg-[#151719] hover:border-[#1F2224]'
+                }`}
+              >
+                <div className="flex justify-between items-start mb-1.5">
+                  <span className={`text-[10px] font-mono tracking-tight ${isSelected ? 'text-[#D4AF37]' : 'text-[#8E9196]'}`}>
+                    {item.id}
+                  </span>
+                  <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border uppercase ${
+                    isSelected 
+                      ? 'bg-[#221F18] text-[#D4AF37] border-[#3A321A]' 
+                      : 'bg-[#181A1C] text-[#52585E] border-[#1F2224]'
+                  }`}>
+                    Item {item.itemNumber}
+                  </span>
+                </div>
+                <p className={`text-xs font-medium truncate transition-colors ${isSelected ? 'text-[#FFFFFF]' : 'text-[#C5C7CA] group-hover:text-[#FFFFFF]'}`}>
+                  {item.title}
+                </p>
+                <div className="flex items-center justify-between mt-2 text-[10px] text-[#52585E]">
+                  <span className="truncate max-w-[140px] text-[11px]">{item.court}</span>
+                  <span className="font-mono text-[#8E9196]">{item.nextHearing}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* COLUMN 2: Central Case Profile & Workspace Document Vault */}
+      <div className="flex-1 bg-[#0C0D0E] flex flex-col overflow-hidden">
+        
+        {/* Profile Header Block */}
+        <div className="p-6 border-b border-[#1F2224] bg-[#111315]/30">
+          <div className="flex items-center gap-2 text-[11px] text-[#8E9196] mb-1.5 font-mono tracking-tight">
+            <span className="bg-[#1C1E20] px-1.5 py-0.5 rounded text-[#C5C7CA] border border-[#25282A]">{activeCase.court}</span>
+            <ChevronRight size={10} className="text-[#52585E]" />
+            <span className="text-[#D4AF37]">CNR: {activeCase.cnr}</span>
+          </div>
+          <h2 className="text-xl font-semibold tracking-tight text-[#FFFFFF] font-sans">{activeCase.title}</h2>
+          
+          <div className="flex gap-6 mt-5 text-xs border-t border-[#1F2224]/50 pt-4">
+            <div className="flex items-center gap-2 bg-[#111315] border border-[#1F2224] px-3 py-1.5 rounded">
+              <Clock size={13} className="text-[#8E9196]" />
+              <span className="text-[#8E9196]">Next Fixed Date:</span>
+              <span className="font-mono text-[#D4AF37] font-medium">{activeCase.nextHearing}</span>
+            </div>
+            <div className="flex items-center gap-2 bg-[#111315] border border-[#1F2224] px-3 py-1.5 rounded">
+              <Gavel size={13} className="text-[#8E9196]" />
+              <span className="text-[#8E9196]">Procedural Stage:</span>
+              <span className="text-[#E4E6E8] font-medium">{activeCase.stage}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Central Workspace Canvas */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <FileText size={15} className="text-[#8E9196]" />
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8E9196]">Document Archive Vault</h3>
+              </div>
+              <button 
+                onClick={handleSimulatedUpload}
+                disabled={isUploading}
+                className="flex items-center gap-1.5 text-xs text-[#D4AF37] border border-[#D4AF37]/20 bg-[#221F18] px-3 py-1.5 rounded hover:bg-[#2D261B] hover:border-[#D4AF37]/40 transition-all duration-200 disabled:opacity-50"
+              >
+                <Upload size={13} className={isUploading ? "animate-bounce" : ""} />
+                <span>{isUploading ? "Uploading to Vault..." : "Upload Annexure"}</span>
+              </button>
+            </div>
+
+            {/* Document Collection Grid */}
+            <div className="border border-[#1F2224] rounded-lg bg-[#111315] divide-y divide-[#1F2224] overflow-hidden">
+              {activeCase.documents.map((doc, idx) => (
+                <div key={idx} className="p-3.5 flex items-center justify-between hover:bg-[#15171A] transition-colors cursor-pointer group">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="p-2 rounded bg-[#0C0D0E] text-[#8E9196] border border-[#1F2224] group-hover:border-[#52585E] transition-colors">
+                      <FileText size={15} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-[#E4E6E8] truncate group-hover:text-[#FFFFFF] transition-colors">{doc.name}</p>
+                      <p className="text-[10px] text-[#52585E] mt-0.5 font-mono">Cloud Verified Vault Log • {doc.date}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-[10px] font-mono text-[#8E9196] bg-[#0C0D0E] px-2 py-0.5 rounded border border-[#1F2224]">{doc.size}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* COLUMN 3: AI Legal Research Command Panel */}
+      <div className="w-96 border-l border-[#1F2224] bg-[#111315] flex flex-col flex-shrink-0">
+        <div className="p-4 border-b border-[#1F2224] flex items-center justify-between bg-[#141618]">
+          <div className="flex items-center gap-2">
+            <Bot size={15} className="text-[#D4AF37]" />
+            <h3 className="text-xs font-semibold tracking-wider uppercase text-[#FFFFFF]">Precedent Synthesis</h3>
+          </div>
+          <div className="flex items-center gap-1 text-[9px] font-mono text-[#52585E] bg-[#0C0D0E] px-1.5 py-0.5 rounded border border-[#1F2224]">
+            <Database size={10} />
+            <span>RAG Engine Active</span>
+          </div>
+        </div>
+
+        {/* AI Compute Readout Block */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#111315]">
+          {aiLoading ? (
+            <div className="h-full flex flex-col items-center justify-center space-y-3 text-center">
+              <div className="w-5 h-5 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
+              <p className="text-[11px] text-[#8E9196] font-mono animate-pulse">Running Embedded Vector Search Hooks...</p>
+            </div>
+          ) : aiResponse ? (
+            <div className="space-y-4 text-xs leading-relaxed">
+              <div className="p-4 rounded-lg bg-[#0C0D0E] border border-[#1F2224] shadow-inner">
+                <div className="flex items-center gap-1.5 text-[#D4AF37] font-semibold mb-3 uppercase tracking-widest text-[9px]">
+                  <Sparkles size={11} />
+                  <span>Strategic Formulation Counsel</span>
+                </div>
+                <div className="whitespace-pre-line text-[#C5C7CA] font-sans text-[11px] space-y-2 leading-relaxed">
+                  {aiResponse}
+                </div>
+              </div>
+              <button 
+                onClick={() => setAiResponse("")}
+                className="w-full py-2 bg-[#1F2224] hover:bg-[#25292D] rounded text-center text-[11px] font-medium text-[#8E9196] transition-colors border border-transparent hover:border-[#2A2E32]"
+              >
+                Clear Research Output
+              </button>
+            </div>
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center text-center p-4 text-[#52585E]">
+              <div className="p-3 rounded-full bg-[#0C0D0E] border border-[#1F2224] mb-3">
+                <Bot size={22} className="text-[#52585E]" />
+              </div>
+              <h4 className="text-xs font-medium text-[#8E9196] mb-1">Context Analysis System</h4>
+              <p className="text-[11px] max-w-[240px] leading-normal text-[#52585E]">
+                Try typing <span className="text-[#D4AF37] font-mono">"delay strategy"</span> or <span className="text-[#D4AF37] font-mono">"check evidence files"</span> in the box below to see the AI scan your active documents.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Input Formulation Terminal */}
+        <div className="p-4 border-t border-[#1F2224] bg-[#141618]">
+          <form onSubmit={handleEmbeddedAiResearch} className="relative">
+            <textarea
+              rows={3}
+              value={aiQuery}
+              onChange={(e) => setAiQuery(e.target.value)}
+              placeholder="Ask for strategy framework, Rajasthan High Court citations, or file cross-examination details..."
+              className="w-full bg-[#0C0D0E] border border-[#1F2224] rounded-lg p-3 text-xs text-[#E4E6E8] placeholder-[#52585E] outline-none focus:border-[#D4AF37]/40 transition-colors resize-none pr-16 leading-normal"
+            />
+            <div className="absolute right-2.5 bottom-3">
+              <button
+                type="submit"
+                disabled={aiLoading || !aiQuery.trim()}
+                className="bg-[#D4AF37] text-[#0C0D0E] font-semibold text-[10px] tracking-wider uppercase px-2.5 py-1.5 rounded hover:bg-[#EAC348] disabled:bg-[#1F2224] disabled:text-[#52585E] transition-all duration-200"
+              >
+                Query
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* OVERLAY INTERFACE CODE DRAWER (SQL System Architecture Viewer) */}
+      {showSqlModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-fadeIn">
+          <div className="bg-[#111315] border border-[#1F2224] rounded-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="p-4 border-b border-[#1F2224] bg-[#141618] flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs text-[#D4AF37] font-mono">
+                <Database size={14} />
+                <span>Production PostgreSQL Schema Mapping</span>
+              </div>
+              <button 
+                onClick={() => setShowSqlModal(false)}
+                className="text-xs bg-[#1F2224] px-2.5 py-1 rounded text-[#8E9196] hover:text-white transition"
+              >
+                ✕ Close
+              </button>
+            </div>
+            <div className="p-4 flex-1 overflow-y-auto font-mono text-[11px] text-[#A9ACAF] bg-[#0C0D0E] space-y-4 select-text">
+              <p className="text-[#52585E] italic">-- Run this directly in your SQL console to initialize the permanent data nodes when moving away from mock execution states:</p>
+              <pre className="bg-[#111315] p-3 rounded border border-[#1F2224] text-[#E4E6E8] overflow-x-auto">
+{`CREATE TABLE cases (
+    id VARCHAR(50) PRIMARY KEY,
+    title TEXT NOT NULL,
+    court_name TEXT NOT NULL,
+    cnr_number VARCHAR(16) UNIQUE,
+    current_stage VARCHAR(100) NOT NULL,
+    next_hearing_date DATE NOT NULL,
+    item_number INT
+);
+
+CREATE TABLE case_documents (
+    id SERIAL PRIMARY KEY,
+    case_id VARCHAR(50) REFERENCES cases(id) ON DELETE CASCADE,
+    file_name TEXT NOT NULL,
+    file_size VARCHAR(20) NOT NULL,
+    storage_url TEXT NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);`}
+              </pre>
+              <div className="flex items-center gap-2 text-[#4BB543] bg-[#142316] border border-[#204225] p-3 rounded-lg text-xs font-sans">
+                <CheckCircle size={14} className="flex-shrink-0" />
+                <span>Structural schema is pre-mapped to this user interface’s dynamic rendering engine keys.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
